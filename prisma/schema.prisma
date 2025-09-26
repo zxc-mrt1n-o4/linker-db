@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  username    String   @unique
+  email       String?  @unique
+  phone       String?  @unique
+  password    String
+  role        Role     @default(USER)
+  status      UserStatus @default(PENDING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  chatMessages ChatMessage[]
+  issues       Issue[]
+  
+  @@map("users")
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  content   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  
+  @@map("chat_messages")
+}
+
+model Issue {
+  id          String      @id @default(cuid())
+  title       String
+  description String
+  status      IssueStatus @default(OPEN)
+  priority    Priority    @default(MEDIUM)
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@map("issues")
+}
+
+model ProxyLink {
+  id          String     @id @default(cuid())
+  name        String
+  url         String
+  description String?
+  type        ProxyType  @default(THIRD_PARTY)
+  status      LinkStatus @default(ACTIVE)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  @@map("proxy_links")
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum IssueStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ProxyType {
+  FANCY
+  THIRD_PARTY
+}
+
+enum LinkStatus {
+  ACTIVE
+  INACTIVE
+  UNDER_REVIEW
+}
