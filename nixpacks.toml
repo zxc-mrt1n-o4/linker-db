@@ -5,7 +5,7 @@ nixPkgs = ["nodejs"]
 cmds = ["npm ci"]
 
 [phases.build]
-cmds = ["npm run db:generate", "npm run db:push", "npm run db:seed"]
+cmds = ["npm run db:generate"]
 
 [start]
-cmd = "npm start"
+cmd = "chmod +x start.sh && ./start.sh"
