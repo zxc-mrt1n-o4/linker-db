@@ -471,6 +471,24 @@ app.put('/api/proxies/:id', authenticateToken, async (req, res) => {
   }
 })
 
+app.delete('/api/proxies/:id', authenticateToken, async (req, res) => {
+  try {
+    // Check if user is admin or super admin
+    if (!['ADMIN', 'SUPER_ADMIN'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Admin access required' })
+    }
+
+    await prisma.proxyLink.delete({
+      where: { id: req.params.id }
+    })
+
+    res.json({ success: true })
+  } catch (error) {
+    console.error('Delete proxy error:', error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // Admin stats route
 app.get('/api/admin/stats', authenticateToken, async (req, res) => {
   try {
