@@ -407,10 +407,13 @@ app.put('/api/issues/:id', authenticateToken, async (req, res) => {
 })
 
 // Proxy links routes
-app.get('/api/proxies', async (req, res) => {
+app.get('/api/proxies', authenticateToken, async (req, res) => {
   try {
+    // Check if user is admin or super admin
+    const isAdmin = req.user.role === 'ADMIN' || req.user.role === 'SUPER_ADMIN'
+    
     const proxies = await prisma.proxyLink.findMany({
-      where: { status: 'ACTIVE' },
+      where: isAdmin ? {} : { status: 'ACTIVE' }, // Show all proxies for admins, only active for regular users
       orderBy: { createdAt: 'desc' }
     })
 
